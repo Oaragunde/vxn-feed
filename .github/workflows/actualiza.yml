@@ -1,0 +1,26 @@
+name: Actualiza VXN
+
+on:
+  schedule:
+    - cron: "30 21 * * 1-5"   # 21:30 UTC, L-V (el VXN cierra ~20:15 UTC)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  actualiza:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet yfinance pandas
+      - run: python actualiza_vxn.py
+      - name: Commit y push si hay cambios
+        run: |
+          git config user.name "vxn-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add VXN_regimen.csv
+          git diff --cached --quiet && echo "sin cambios" || (git commit -m "VXN $(date -u +%F)" && git push)
