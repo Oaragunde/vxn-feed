@@ -2,7 +2,7 @@ name: Actualiza feeds de volatilidad
 
 on:
   schedule:
-    - cron: "30 21 * * 1-5"   # 21:30 UTC, L-V (VXN y VIX cierran ~20:15/20:15 UTC)
+    - cron: "30 21 * * 1-5"   # 21:30 UTC, L-V (VXN, VIX y GVZ cierran ~20:15 UTC)
   workflow_dispatch: {}
 
 permissions:
@@ -19,9 +19,10 @@ jobs:
       - run: pip install --quiet yfinance pandas
       - run: python actualiza_vxn.py
       - run: python actualiza_vix.py
+      - run: python actualiza_gvz.py
       - name: Commit y push si hay cambios
         run: |
           git config user.name "vxn-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add VXN_regimen.csv VIX_regimen.csv
+          git add VXN_regimen.csv VIX_regimen.csv GVZ_regimen.csv
           git diff --cached --quiet && echo "sin cambios" || (git commit -m "Feeds $(date -u +%F)" && git push)
