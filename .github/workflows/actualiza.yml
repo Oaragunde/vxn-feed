@@ -2,7 +2,10 @@ name: Actualiza feeds de volatilidad
 
 on:
   schedule:
-    - cron: "30 21 * * 1-5"   # 21:30 UTC, L-V (VXN, VIX y GVZ cierran ~20:15 UTC)
+    - cron: "30 21 * * 1-5"   # 21:30 UTC, L-V (VXN, VIX y GVZ cierran 20:15 UTC en verano)
+    - cron: "45 23 * * 1-5"   # 23:45 UTC, repaso: en invierno cierran 21:15 UTC y a las 21:30
+                              # yfinance aún puede dar un cierre provisional. Sólo hace commit
+                              # si el dato cambió.
   workflow_dispatch: {}
 
 permissions:
