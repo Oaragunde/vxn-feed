@@ -1,0 +1,47 @@
+name: Snapshot GEX (opciones SPY/QQQ)
+
+# Objetivo: 22:45 hora peninsular todo el año. Cron de GitHub va en UTC sin cambio de hora:
+#   20:45 UTC = 22:45 en verano (16:45 NY)   -> captura
+#   21:45 UTC = 22:45 en invierno (16:45 NY) -> captura
+# En verano la segunda cae a las 17:45 NY y no hace nada (el snapshot ya existe); en invierno
+# la primera cae a las 15:45 NY, con el mercado abierto, y actualiza_gex.py la descarta.
+on:
+  schedule:
+    - cron: "45 20 * * 1-5"
+    - cron: "45 21 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      prueba:
+        description: "Prueba de entorno (no toca el histórico)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gex
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet yfinance pandas numpy pyarrow
+      - name: Captura
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.prueba }}" = "true" ]; then
+            python actualiza_gex.py --prueba
+          else
+            python actualiza_gex.py
+          fi
+      - name: Commit y push si hay cambios
+        run: |
+          git config user.name "vxn-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add gex/snapshots gex/gex_history.csv gex/gamma_levels.csv
+          git diff --cached --quiet && echo "sin cambios" || (git commit -m "GEX $(TZ=America/New_York date +%F)" && git pull --rebase && git push)

@@ -8,6 +8,7 @@ MetaTrader 5 los consuman vía `WebRequest` (útil en VPS, donde no hay tareas l
 | `VXN_regimen.csv` | ^VXN (Nasdaq-100) | `EA_ConnorsRSI2Nasdaq_Fut` (Micro MNQ) |
 | `VIX_regimen.csv` | ^VIX (S&P 500) | `EA_ConnorsRSI2SP_Fut` (Micro MES) |
 | `GVZ_regimen.csv` | ^GVZ (oro) | `EA_OroTardeVAH_Fut` (Micro Gold MGC) — **formato distinto, ver abajo** |
+| `gex/gamma_levels.csv` | cadena de opciones SPY/QQQ | indicador `GammaOptionsLevels` (filtro de gamma, ES/NQ) — **no regenerable, ver abajo** |
 
 Formato de VXN y VIX: una fila por **día de calendario**, `fecha;indice;sma200;reg`, donde
 `reg=1` significa que el índice está por debajo de su SMA de **200 días de calendario**
@@ -47,3 +48,26 @@ https://raw.githubusercontent.com/Oaragunde/vxn-feed/main/GVZ_regimen.csv
 
 Para que MT5 pueda descargarlos hay que añadir `https://raw.githubusercontent.com` a la lista
 blanca de WebRequest (Herramientas → Opciones → Asesores Expertos).
+
+## GEX: snapshot de opciones SPY/QQQ (carpeta `gex/`)
+
+**Distinto a todo lo anterior en lo más importante: no se puede regenerar.** yfinance solo da
+la cadena de opciones de hoy, así que cada sesión que no se captura se pierde para siempre.
+Por eso se mudó aquí desde la tarea del PC (que perdió más de la mitad de los días).
+
+- `actualiza_gex.py` + `.github/workflows/gex.yml`: L-V a las **22:45 hora peninsular** todo el
+  año (dos cron en UTC; el script solo deja pasar la que cae en la ventana post-cierre
+  16:30-19:30 de Nueva York y no repite si el día ya está).
+- Falla en rojo si alguna cadena trae menos de 1.000 contratos válidos: fuera de esa ventana
+  Yahoo degrada la cadena (a las 06:00 NY devuelve 34 contratos en SPY).
+- `gex/gex_core.py`, `chain_source.py`, `opex_calendar.py`, `gex_daily.py`: copia literal de
+  `tools/gamma_options/` del repo de estrategias. **Si se cambia allí, copiar aquí.**
+- Salidas: `gex/snapshots/chain_<SIM>_<fecha>.parquet` (cadena cruda, el histórico que
+  importa), `gex/gex_history.csv` (niveles por sesión) y `gex/gamma_levels.csv` (último día).
+- La **fecha es la de la sesión de Nueva York**. Al migrar se corrigieron tres snapshots del PC
+  que llevaban la fecha española (ver `gex/snapshots_dudosos/LEEME.md`).
+- Prueba del entorno sin tocar el histórico: *Actions → Snapshot GEX → Run workflow* (prueba = sí).
+
+```
+https://raw.githubusercontent.com/Oaragunde/vxn-feed/main/gex/gamma_levels.csv
+```

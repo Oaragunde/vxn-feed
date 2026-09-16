@@ -1,0 +1,3 @@
+fecha,simbolo,spot,gamma_flip,call_wall,put_wall,regimen,gex_neto,dist_flip_pct,dias_a_opex,pre_opex,ventana_debilidad
+2026-09-15,SPY,757.3900146484375,764.8407585067266,760.0,750.0,negativo,-12651725789.4337,-0.9837393831693932,3,True,False
+2026-09-15,QQQ,704.5399780273438,713.439275768709,710.0,700.0,negativo,-6274715859.773567,-1.2631359495429269,3,True,False
