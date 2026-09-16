@@ -36,7 +36,8 @@ Al publicarlo se comprobó que reproduce exactamente el CSV con el que se valid�
 - `actualiza_vxn.py` / `actualiza_vix.py` / `actualiza_gvz.py` — regeneran cada CSV completo
   desde yfinance. Cada ejecución reescribe todo el histórico, así que un día sin correr no
   pierde nada.
-- GitHub Actions los ejecuta de lunes a viernes a las 21:30 UTC.
+- GitHub Actions los ejecuta de lunes a viernes a las 21:30 UTC, con un repaso a las 23:45 UTC
+  (en invierno los índices cierran a las 21:15 UTC y a las 21:30 el cierre aún puede ser provisional).
 
 URLs crudas para los EAs:
 
