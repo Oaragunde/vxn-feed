@@ -6,6 +6,10 @@ on:
     - cron: "45 23 * * 1-5"   # 23:45 UTC, repaso: en invierno cierran 21:15 UTC y a las 21:30
                               # yfinance aún puede dar un cierre provisional. Sólo hace commit
                               # si el dato cambió.
+    - cron: "0 7 * * 6"       # sábado 07:00 UTC (09:00 en España), repaso: si Yahoo publicó tarde el
+                              # cierre del viernes (pasó el 16-oct-2026: VXN repetido y GVZ sin
+                              # fila), esto lo corrige antes del lunes. Reescribe el histórico
+                              # completo; sólo hace commit si el dato cambió.
   workflow_dispatch: {}
 
 permissions:
