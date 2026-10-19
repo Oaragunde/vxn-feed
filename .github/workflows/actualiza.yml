@@ -2,14 +2,15 @@ name: Actualiza feeds de volatilidad
 
 on:
   schedule:
-    - cron: "30 21 * * 1-5"   # 21:30 UTC, L-V (VXN, VIX y GVZ cierran 20:15 UTC en verano)
-    - cron: "45 23 * * 1-5"   # 23:45 UTC, repaso: en invierno cierran 21:15 UTC y a las 21:30
-                              # yfinance aún puede dar un cierre provisional. Sólo hace commit
-                              # si el dato cambió.
-    - cron: "0 7 * * 6"       # sábado 07:00 UTC (09:00 en España), repaso: si Yahoo publicó tarde el
-                              # cierre del viernes (pasó el 16-oct-2026: VXN repetido y GVZ sin
-                              # fila), esto lo corrige antes del lunes. Reescribe el histórico
-                              # completo; sólo hace commit si el dato cambió.
+    # Los cron de GitHub en punto o en y media se retrasan o se pierden con carga alta (el de
+    # "30 21" no llegó a ejecutarse varios días de octubre de 2026): minutos "raros".
+    - cron: "17 21 * * 1-5"   # 21:17 UTC, L-V (VXN, VIX y GVZ cierran 20:15 UTC en verano)
+    - cron: "47 23 * * 1-5"   # 23:47 UTC, repaso: en invierno cierran 21:15 UTC y Yahoo aún puede dar un
+                              # cierre provisional. Sólo hace commit si el dato cambió.
+    - cron: "23 5 * * 2-6"    # 05:23 UTC (07:23 en España), de martes a sábado: Yahoo publica tarde el
+                              # cierre del VXN y del GVZ (y a veces del VIX), a veces ya de madrugada
+                              # (pasó el 16 y el 19-oct-2026). Corrige el feed antes del informe de
+                              # las 8:00. Reescribe el histórico completo; sólo hace commit si cambió algo.
   workflow_dispatch: {}
 
 permissions:
