@@ -1,14 +1,18 @@
 name: Snapshot GEX (opciones SPY/QQQ)
 
-# Objetivo: 22:45 hora peninsular todo el año. Cron de GitHub va en UTC sin cambio de hora:
-#   20:45 UTC = 22:45 en verano (16:45 NY)   -> captura
-#   21:45 UTC = 22:45 en invierno (16:45 NY) -> captura
-# En verano la segunda cae a las 17:45 NY y no hace nada (el snapshot ya existe); en invierno
-# la primera cae a las 15:45 NY, con el mercado abierto, y actualiza_gex.py la descarta.
+# La captura solo vale entre 16:30 y 19:30 de Nueva York (20:30-23:30 UTC en verano,
+# 21:30-00:30 UTC en invierno). GitHub retrasa los cron entre 30 y 90 minutos (el 14-oct los de
+# las 20:45/21:45 UTC arrancaron a las 23:37 y a las 00:13, ya fuera de ventana: el trabajo
+# acababa en verde sin capturar nada). Por eso se programan varios disparos escalonados: los que
+# caen fuera de ventana o con el snapshot ya hecho salen sin tocar nada (actualiza_gex.py).
 on:
   schedule:
-    - cron: "45 20 * * 1-5"
-    - cron: "45 21 * * 1-5"
+    - cron: "35 20 * * 1-5"
+    - cron: "5 21 * * 1-5"
+    - cron: "35 21 * * 1-5"
+    - cron: "5 22 * * 1-5"
+    - cron: "35 22 * * 1-5"
+    - cron: "5 23 * * 1-5"
   workflow_dispatch:
     inputs:
       prueba:

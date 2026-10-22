@@ -33,7 +33,7 @@ RAIZ = Path(__file__).resolve().parent
 GEX = RAIZ / "gex"
 sys.path.insert(0, str(GEX))
 
-from opex_calendar import en_ventana_post_cierre  # noqa: E402
+from opex_calendar import en_ventana_post_cierre, es_sesion_nyse  # noqa: E402
 
 SIMBOLOS = ["SPY", "QQQ"]
 MIN_CONTRATOS = 1000   # SPY y QQQ traen ~3.000-4.500 contratos válidos a 45 días
@@ -53,6 +53,12 @@ def main():
     else:
         if not en_ventana_post_cierre(ahora_ny):
             print(f"{ahora_ny:%Y-%m-%d %H:%M} NY: fuera de la ventana post-cierre, no se captura")
+            # Si ya pasó la ventana de una sesión y no quedó capturada, que se vea en el
+            # resumen del trabajo (no en rojo: los demás disparos del día son normales).
+            if es_sesion_nyse(fecha) and (ahora_ny.hour, ahora_ny.minute) >= (19, 30):
+                falta = [s for s in SIMBOLOS if not (GEX / "snapshots" / f"chain_{s}_{fecha}.parquet").exists()]
+                if falta:
+                    print(f"::warning::Sesión {fecha} sin capturar ({', '.join(falta)}) y la ventana ya cerró")
             return
         outdir = GEX
         ya = [s for s in SIMBOLOS if (GEX / "snapshots" / f"chain_{s}_{fecha}.parquet").exists()]
