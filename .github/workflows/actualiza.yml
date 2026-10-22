@@ -1,16 +1,18 @@
 name: Actualiza feeds de volatilidad
 
+# CANDIDATO v3 (20-oct-2026), NO desplegado. Sustituye a actualiza_vxn.py / actualiza_vix.py /
+# actualiza_gvz.py por regimen_feeds.py (que hay que subir a la raiz del repo junto a este archivo).
+# Misma politica que el VPS: Yahoo primero, TradingView de respaldo (solo VXN y VIX; desde la IP de
+# GitHub puede no responder y no pasa nada), y NUNCA una fila de un dia de mercado sin cierre real.
+# El codigo de salida 1 de regimen_feeds.py («falta un cierre esperado») no debe romper el job: el
+# commit se hace igual con lo que haya, y el monitor de las 8:00 avisa de lo que falte.
+
 on:
   schedule:
-    # Los cron de GitHub en punto o en y media se retrasan o se pierden con carga alta (el de
-    # "30 21" no llegó a ejecutarse varios días de octubre de 2026): minutos "raros".
-    - cron: "17 21 * * 1-5"   # 21:17 UTC, L-V (VXN, VIX y GVZ cierran 20:15 UTC en verano)
-    - cron: "47 23 * * 1-5"   # 23:47 UTC, repaso: en invierno cierran 21:15 UTC y Yahoo aún puede dar un
-                              # cierre provisional. Sólo hace commit si el dato cambió.
-    - cron: "23 5 * * 2-6"    # 05:23 UTC (07:23 en España), de martes a sábado: Yahoo publica tarde el
-                              # cierre del VXN y del GVZ (y a veces del VIX), a veces ya de madrugada
-                              # (pasó el 16 y el 19-oct-2026). Corrige el feed antes del informe de
-                              # las 8:00. Reescribe el histórico completo; sólo hace commit si cambió algo.
+    # Minutos "raros": los cron en punto o en y media se retrasan o se pierden con carga alta.
+    - cron: "17 21 * * 1-5"   # 21:17 UTC, L-V (los indices cierran 20:15 UTC en verano)
+    - cron: "47 23 * * 1-5"   # 23:47 UTC: en invierno cierran 21:15 UTC y Yahoo puede ir tarde
+    - cron: "23 5 * * 2-6"    # 05:23 UTC (07:23 en Espana), martes a sabado: repaso de madrugada
   workflow_dispatch: {}
 
 permissions:
@@ -25,9 +27,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install --quiet yfinance pandas
-      - run: python actualiza_vxn.py
-      - run: python actualiza_vix.py
-      - run: python actualiza_gvz.py
+      - name: Genera VXN, VIX y GVZ
+        run: python regimen_feeds.py --out . --modo una-vez || echo "regimen_feeds.py termino con codigo $? (ver el estado)"
       - name: Commit y push si hay cambios
         run: |
           git config user.name "vxn-bot"
