@@ -533,7 +533,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description='Feeds de regimen VXN/VIX/GVZ (Yahoo + TradingView)')
     ap.add_argument('--out', required=True, help='carpeta espejo (tambien guarda el estado)')
     ap.add_argument('--destino', action='append', default=[], help='carpeta MQL5\\Files (repetible)')
-    ap.add_argument('--series', default='VXN,VIX,GVZ')
+    ap.add_argument('--series', default=','.join(SERIES))  # todas (VIX3M incluida desde el 6-nov-2026)
     ap.add_argument('--modo', choices=('una-vez', 'espera'), default='una-vez')
     ap.add_argument('--cada', type=int, default=60, help='minutos entre reintentos (modo espera)')
     ap.add_argument('--hasta', default='07:55', help='hora local limite del modo espera')
