@@ -80,6 +80,7 @@ class Serie:
 SERIES = {
     'VXN': Serie('VXN', '^VXN', 'CBOE:VXN', True, True),
     'VIX': Serie('VIX', '^VIX', 'CBOE:VIX', True, True),
+    'VIX3M': Serie('VIX3M', '^VIX3M', None, True, True),   # 6-nov-2026: FI16 (VIX/VIX3M) de FVG + ORB v3_2; no esta en TradingView
     'GVZ': Serie('GVZ', '^GVZ', None, False, False),
 }
 
